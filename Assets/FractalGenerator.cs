@@ -251,7 +251,11 @@ public class FractalGenerator : MonoBehaviour
     {
         byte[] data = texture.EncodeToPNG();
         string ID = UnityEngine.Random.Range(0, 10000).ToString();
-        string path = Application.dataPath + "/SavedTexture" + ID + ".png";
+        if(!Directory.Exists(Application.dataPath+"/Saved_Images"))
+        {
+            Directory.CreateDirectory(Application.dataPath+"/Saved_Images");
+        }
+        string path = Application.dataPath + "/Saved_Images/Fractal_" + ID + ".png";
         File.WriteAllBytes(path, data);
     }
 
