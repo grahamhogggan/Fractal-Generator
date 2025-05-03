@@ -68,7 +68,7 @@ public class FractalGenerator : MonoBehaviour
         BurningShip = 3,
         Sine_Cosine_Distortion = 4,
         PlanktonFractal = 5,
-        };
+    };
     public static FractalType fractalType;
     public FractalType type;
 
@@ -116,9 +116,25 @@ public class FractalGenerator : MonoBehaviour
 
         if (Input.GetKeyDown("space"))
         {
+            int initWidth = width;
+            int initHeight = height;
+            double initZoom = zoom;
+            int initIter = maxIteration;
+            while (maxIteration < 3000) maxIteration *= 2;
+            while (width < 3000)
+            {
+                width *= 2;
+                height *= 2;
+                zoom *= 2;
+            }
             GenerateFractal(true);
+            width = initWidth;
+            height = initHeight;
+            zoom = initZoom;
+            maxIteration = initIter;
+            
         }
-        if(!Input.GetKey("left shift")&&!Input.GetKey("left ctrl"))
+        if (!Input.GetKey("left shift") && !Input.GetKey("left ctrl"))
         {
             if (Input.GetKeyDown("e") && width < 3000)
             {
@@ -133,17 +149,17 @@ public class FractalGenerator : MonoBehaviour
                 zoom /= 2;
             }
         }
-        else if(Input.GetKey("left ctrl"))
+        else if (Input.GetKey("left ctrl"))
         {
             if (Input.GetKeyDown("e") && colorScale < 500)
             {
-                colorScaleFactor*=2;
-                colorScale*=2;
+                colorScaleFactor *= 2;
+                colorScale *= 2;
             }
             if (Input.GetKeyDown("q") && colorScale > 1)
             {
-                colorScaleFactor/=2;
-                colorScale/=2;
+                colorScaleFactor /= 2;
+                colorScale /= 2;
             }
             GenerateFractal(false);
         }
@@ -151,11 +167,11 @@ public class FractalGenerator : MonoBehaviour
         {
             if (Input.GetKeyDown("e") && maxIteration < 3000)
             {
-                maxIteration*=2;
+                maxIteration *= 2;
             }
             if (Input.GetKeyDown("q") && maxIteration > 1)
             {
-                maxIteration/=2;
+                maxIteration /= 2;
             }
         }
 
@@ -391,7 +407,7 @@ public class FractalGenerator : MonoBehaviour
                     res.a = 1;
                     return res;
                 }
-                c = new ComplexNumber(Math.Sin(c.real),Math.Cos(c.imaginary))*c + z;
+                c = new ComplexNumber(Math.Sin(c.real), Math.Cos(c.imaginary)) * c + z;
                 iterations++;
             }
             return new Color(0, 0, 0, 1);
@@ -410,13 +426,13 @@ public class FractalGenerator : MonoBehaviour
                     res.a = 1;
                     return res;
                 }
-                c = new ComplexNumber(c.imaginary*c.real, c.imaginary+c.real)*c + z;
+                c = new ComplexNumber(c.imaginary * c.real, c.imaginary + c.real) * c + z;
                 iterations++;
             }
             return new Color(0, 0, 0, 1);
         }
 
-        
+
 
     }
 

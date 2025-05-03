@@ -3,5 +3,6 @@ Fractal generator in the Unity game engine. Generates Newton fractals and the ma
 
 Unity Version 2022.3, although most future versions should be compatible (?)
 Samples:
-<img src = "Assets/SavedTexture4565.png">
-<img src = "Assets/SavedTexture8512.png">
+<img src = "Assets/Mandel_03.png">
+<img src = "Assets/Ship_01.png">
+<img src = "Assets/Plankton_02.png">

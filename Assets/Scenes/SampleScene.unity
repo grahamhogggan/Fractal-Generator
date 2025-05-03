@@ -388,7 +388,7 @@ MonoBehaviour:
   translateSpeed: 50
   zoomSpeed: 1
   colorScaleFactor: 8
-  type: 4
+  type: 2
 --- !u!4 &1393652910
 Transform:
   m_ObjectHideFlags: 0
