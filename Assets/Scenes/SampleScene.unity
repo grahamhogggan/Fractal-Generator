@@ -251,8 +251,8 @@ Camera:
   m_GameObject: {fileID: 963194225}
   m_Enabled: 1
   serializedVersion: 2
-  m_ClearFlags: 1
-  m_BackGroundColor: {r: 0.19215687, g: 0.3019608, b: 0.4745098, a: 0}
+  m_ClearFlags: 2
+  m_BackGroundColor: {r: 0, g: 0, b: 0, a: 0}
   m_projectionMatrixMode: 1
   m_GateFitMode: 2
   m_FOVAxisMode: 0
@@ -341,7 +341,7 @@ MonoBehaviour:
   width: 64
   height: 64
   maxIteration: 30
-  zoom: 1
+  zoom: 10
   tolerance: 0.01
   polynomialCoefficients:
   - -2
@@ -387,6 +387,7 @@ MonoBehaviour:
   - {r: 0.4657376, g: 0.6698113, b: 0, a: 1}
   translateSpeed: 50
   zoomSpeed: 1
+  colorScaleFactor: 8
   type: 2
 --- !u!4 &1393652910
 Transform:
