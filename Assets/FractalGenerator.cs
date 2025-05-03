@@ -64,14 +64,17 @@ public class FractalGenerator : MonoBehaviour
     public enum FractalType
     {
         Newtonian = 0,
-        Mandelbrot = 2
-    };
+        Mandelbrot = 2,
+        BurningShip = 3,
+        Sine_Cosine_Distortion = 4,
+        PlanktonFractal = 5,
+        };
     public static FractalType fractalType;
     public FractalType type;
 
     void Start()
     {
-                fractalType = type;
+        fractalType = type;
         colorScale = colorScaleFactor;
         equation = new Polynomial(polynomialCoefficients);
         derivitave = equation.Derivative();
@@ -115,17 +118,45 @@ public class FractalGenerator : MonoBehaviour
         {
             GenerateFractal(true);
         }
-        if (Input.GetKeyDown("e") && width < 3000)
+        if(!Input.GetKey("left shift")&&!Input.GetKey("left ctrl"))
         {
-            width *= 2;
-            height *= 2;
-            zoom *= 2;
+            if (Input.GetKeyDown("e") && width < 3000)
+            {
+                width *= 2;
+                height *= 2;
+                zoom *= 2;
+            }
+            if (Input.GetKeyDown("q") && width > 10)
+            {
+                width /= 2;
+                height /= 2;
+                zoom /= 2;
+            }
         }
-        if (Input.GetKeyDown("q") && width > 10)
+        else if(Input.GetKey("left ctrl"))
         {
-            width /= 2;
-            height /= 2;
-            zoom /= 2;
+            if (Input.GetKeyDown("e") && colorScale < 500)
+            {
+                colorScaleFactor*=2;
+                colorScale*=2;
+            }
+            if (Input.GetKeyDown("q") && colorScale > 1)
+            {
+                colorScaleFactor/=2;
+                colorScale/=2;
+            }
+            GenerateFractal(false);
+        }
+        else
+        {
+            if (Input.GetKeyDown("e") && maxIteration < 3000)
+            {
+                maxIteration*=2;
+            }
+            if (Input.GetKeyDown("q") && maxIteration > 1)
+            {
+                maxIteration/=2;
+            }
         }
 
     }
@@ -261,7 +292,7 @@ public class FractalGenerator : MonoBehaviour
         }
         public Color ComputeColor(ComplexNumber z)
         {
-            switch(fractalType)
+            switch (fractalType)
             {
                 case FractalType.Newtonian:
                     return Newton(z);
@@ -269,54 +300,123 @@ public class FractalGenerator : MonoBehaviour
                 case FractalType.Mandelbrot:
                     return Mandel(z);
                     break;
+                case FractalType.BurningShip:
+                    return Burning(z);
+                    break;
+                case FractalType.Sine_Cosine_Distortion:
+                    return Trig(z);
+                    break;
+                case FractalType.PlanktonFractal:
+                    return Plankton(z);
+                    break;
             }
-            return new Color(0,0,0,1);
+            return new Color(0, 0, 0, 1);
         }
-    public Color Newton(ComplexNumber z)
-    {
-        bool succeeded = false;
-        for (int iteration = 0; iteration < maxIteration; iteration++)
+        public Color Newton(ComplexNumber z)
         {
-            succeeded = false;
-            z -= Function(z) / FunctionDerivative(z);
-            for (int r = 0; r < roots.Length; r++)
+            bool succeeded = false;
+            for (int iteration = 0; iteration < maxIteration; iteration++)
             {
-                ComplexNumber difference = z - roots[r];
-                if (difference.MagnitudeSquared() < tolerance)
+                succeeded = false;
+                z -= Function(z) / FunctionDerivative(z);
+                for (int r = 0; r < roots.Length; r++)
                 {
-                    Color result = colors[r] * (float)brightness / Mathf.Sqrt(iteration);
-                    result.a = 1;
-                    return result;
-                    succeeded = true;
+                    ComplexNumber difference = z - roots[r];
+                    if (difference.MagnitudeSquared() < tolerance)
+                    {
+                        Color result = colors[r] * (float)brightness / Mathf.Sqrt(iteration);
+                        result.a = 1;
+                        return result;
+                        succeeded = true;
+                        break;
+                    }
+                }
+                if (succeeded)
+                {
                     break;
                 }
             }
-            if (succeeded)
-            {
-                break;
-            }
+            return new Color(0, 0, 0, 1);
         }
-        return new Color(0, 0, 0, 1);
-    }
-    public Color Mandel(ComplexNumber z)
-    {
-        ComplexNumber c = new ComplexNumber(0,0);
-        int iterations = 0;
-        for(int i = 0; i<maxIteration; i++)
+        public Color Mandel(ComplexNumber z)
         {
-            if(c.MagnitudeSquared()>4)
+            ComplexNumber c = new ComplexNumber(0, 0);
+            int iterations = 0;
+            for (int i = 0; i < maxIteration; i++)
             {
-                int col = iterations%(colors.Length*colorScale)/colorScale;
+                if (c.MagnitudeSquared() > 4)
+                {
+                    int col = iterations % (colors.Length * colorScale) / colorScale;
 
-                Color res =  colors[col]*(float)brightness /  Mathf.Sqrt(iterations);
-                res.a = 1;
-                return res;
+                    Color res = colors[col] * (float)brightness / Mathf.Sqrt(iterations);
+                    res.a = 1;
+                    return res;
+                }
+                c = c.Pow(2) + z;
+                iterations++;
             }
-            c = c.Pow(2)+z;
-            iterations++;
+            return new Color(0, 0, 0, 1);
         }
-        return new Color(0,0,0,1);
-    }
+        public Color Burning(ComplexNumber z)
+        {
+            ComplexNumber c = new ComplexNumber(0, 0);
+            int iterations = 0;
+            for (int i = 0; i < maxIteration; i++)
+            {
+                if (c.MagnitudeSquared() > 4)
+                {
+                    int col = iterations % (colors.Length * colorScale) / colorScale;
+
+                    Color res = colors[col] * (float)brightness / Mathf.Sqrt(iterations);
+                    res.a = 1;
+                    return res;
+                }
+                ComplexNumber abs = new ComplexNumber(Math.Abs(c.real), Math.Abs(c.imaginary));
+                c = abs.Pow(2) + z;
+                iterations++;
+            }
+            return new Color(0, 0, 0, 1);
+        }
+        public Color Trig(ComplexNumber z)
+        {
+            ComplexNumber c = new ComplexNumber(0, 0);
+            int iterations = 0;
+            for (int i = 0; i < maxIteration; i++)
+            {
+                if (c.MagnitudeSquared() > 4)
+                {
+                    int col = iterations % (colors.Length * colorScale) / colorScale;
+
+                    Color res = colors[col] * (float)brightness / Mathf.Sqrt(iterations);
+                    res.a = 1;
+                    return res;
+                }
+                c = new ComplexNumber(Math.Sin(c.real),Math.Cos(c.imaginary))*c + z;
+                iterations++;
+            }
+            return new Color(0, 0, 0, 1);
+        }
+        public Color Plankton(ComplexNumber z)
+        {
+            ComplexNumber c = new ComplexNumber(0, 0);
+            int iterations = 0;
+            for (int i = 0; i < maxIteration; i++)
+            {
+                if (c.MagnitudeSquared() > 4)
+                {
+                    int col = iterations % (colors.Length * colorScale) / colorScale;
+
+                    Color res = colors[col] * (float)brightness / Mathf.Sqrt(iterations);
+                    res.a = 1;
+                    return res;
+                }
+                c = new ComplexNumber(c.imaginary*c.real, c.imaginary+c.real)*c + z;
+                iterations++;
+            }
+            return new Color(0, 0, 0, 1);
+        }
+
+        
 
     }
 
