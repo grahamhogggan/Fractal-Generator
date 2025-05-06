@@ -63,18 +63,17 @@ public class FractalGenerator : MonoBehaviour
     private static Texture2D texture;
     public enum FractalType
     {
-        Newtonian = 0,
-        Mandelbrot = 2,
-        BurningShip = 3,
-        Sine_Cosine_Distortion = 4,
-        PlanktonFractal = 5,
+        Mandelbrot = 0,
+        Newtonian = 1,
+        BurningShip = 2,
+        Sine_Cosine_Distortion = 3,
+        PlanktonFractal = 4,
     };
     public static FractalType fractalType;
-    public FractalType type;
-
+    private static FractalGenerator gen;
     void Start()
     {
-        fractalType = type;
+        gen = this;
         colorScale = colorScaleFactor;
         equation = new Polynomial(polynomialCoefficients);
         derivitave = equation.Derivative();
@@ -84,7 +83,6 @@ public class FractalGenerator : MonoBehaviour
     }
     void Update()
     {
-        fractalType = type;
         colorScale = colorScaleFactor;
         double dirX = Input.GetAxisRaw("Horizontal") * translateSpeed * Time.deltaTime / zoom;
         if (Math.Abs(dirX) > 0)
@@ -175,6 +173,16 @@ public class FractalGenerator : MonoBehaviour
             }
         }
 
+    }
+    public static void Reset()
+    {
+        gen.zoom = 10;
+        gen.width = 64;
+        gen.height = 64;
+        gen.maxIteration = 100;
+        gen.colorScaleFactor = 8;
+        brightness = 1;
+        gen.GenerateFractal(false);
     }
     void GenerateFractal(bool save)
     {
