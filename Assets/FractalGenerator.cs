@@ -20,7 +20,7 @@ public class FractalGenerator : MonoBehaviour
 
     public static Polynomial equation;
     public static Polynomial derivitave;
-    public double[] polynomialCoefficients;
+    public static double[] polynomialCoefficients;
 
     //speed variables;
     double widthScaled;
@@ -71,18 +71,28 @@ public class FractalGenerator : MonoBehaviour
     };
     public static FractalType fractalType;
     private static FractalGenerator gen;
+    void Awake()
+    {
+        polynomialCoefficients = new double[10];
+        polynomialCoefficients[0] = 1;
+        polynomialCoefficients[3] = 1;
+        polynomialCoefficients[2]=1;
+        equation = new Polynomial(polynomialCoefficients);
+        derivitave = equation.Derivative();
+        roots = equation.GetRoots();
+    }
     void Start()
     {
         gen = this;
         colorScale = colorScaleFactor;
-        equation = new Polynomial(polynomialCoefficients);
-        derivitave = equation.Derivative();
-        roots = equation.GetRoots();
+
         GenerateFractal(false);
 
     }
     void Update()
     {
+
+
         colorScale = colorScaleFactor;
         double dirX = Input.GetAxisRaw("Horizontal") * translateSpeed * Time.deltaTime / zoom;
         if (Math.Abs(dirX) > 0)
@@ -172,6 +182,13 @@ public class FractalGenerator : MonoBehaviour
                 maxIteration /= 2;
             }
         }
+
+    }
+    void LateUpdate()
+    {
+                equation = new Polynomial(polynomialCoefficients);
+        derivitave = equation.Derivative();
+                roots = equation.GetRoots();
 
     }
     public static void Reset()
@@ -352,7 +369,7 @@ public class FractalGenerator : MonoBehaviour
                     ComplexNumber difference = z - roots[r];
                     if (difference.MagnitudeSquared() < tolerance)
                     {
-                        Color result = colors[r] * (float)brightness / Mathf.Sqrt(iteration);
+                        Color result = colors[Math.Clamp(r*colorScale,0,colors.Length-1)] * (float)brightness / Mathf.Sqrt(iteration);
                         result.a = 1;
                         return result;
                         succeeded = true;
