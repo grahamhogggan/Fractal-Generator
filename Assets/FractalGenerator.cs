@@ -184,6 +184,12 @@ public class FractalGenerator : MonoBehaviour
         }
 
     }
+    void LateUpdate()
+    {
+        equation = new Polynomial(polynomialCoefficients);
+       derivitave = equation.Derivative();
+        roots = equation.GetRoots();
+    }
     public static void Reset()
     {
         gen.zoom = 10;
