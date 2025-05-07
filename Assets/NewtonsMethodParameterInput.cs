@@ -18,6 +18,12 @@ public class NewtonsMethodParameterInput : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        FractalGenerator.polynomialCoefficients[index]=int.Parse(field.text);
+        string val = field.text;
+        if(val.Length==0||val=="-") val = "0";
+        FractalGenerator.polynomialCoefficients[index]=int.Parse(val);
+    }
+    public void Change()
+    {
+        FractalGenerator.Regenerate();
     }
 }

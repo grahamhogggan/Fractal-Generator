@@ -184,13 +184,6 @@ public class FractalGenerator : MonoBehaviour
         }
 
     }
-    void LateUpdate()
-    {
-                equation = new Polynomial(polynomialCoefficients);
-        derivitave = equation.Derivative();
-                roots = equation.GetRoots();
-
-    }
     public static void Reset()
     {
         gen.zoom = 10;
@@ -200,6 +193,13 @@ public class FractalGenerator : MonoBehaviour
         gen.colorScaleFactor = 8;
         brightness = 1;
         gen.GenerateFractal(false);
+    }
+    public static void Regenerate()
+    {
+                equation = new Polynomial(polynomialCoefficients);
+        derivitave = equation.Derivative();
+                gen.roots = equation.GetRoots();
+                gen.GenerateFractal(false);
     }
     void GenerateFractal(bool save)
     {
@@ -595,13 +595,20 @@ public struct Polynomial
     public ComplexNumber[] GetRoots()
     {
 
-        ComplexNumber[] result = new ComplexNumber[coefficients.Length - 1];
+        int indexOfLastNonZero = coefficients.Length-1;
+        while(indexOfLastNonZero>=0&&coefficients[indexOfLastNonZero]==0)
+        {
+            indexOfLastNonZero--;
+        }
+        ComplexNumber[] result = new ComplexNumber[indexOfLastNonZero];
         ComplexNumber guess = new ComplexNumber(1, 1);
         Polynomial poly = new Polynomial(coefficients);
         //Debug.Log("getting "+result.Length+" roots");
         for (int i = 0; i < result.Length; i++)
         {
             ComplexNumber root = poly.GetNewtonianRoot(guess);
+                            Debug.Log(root.real+"/"+root.imaginary);
+
             if (root.imaginary == 0)
             {
                 //Debug.Log("root was real with value "+root.real);
