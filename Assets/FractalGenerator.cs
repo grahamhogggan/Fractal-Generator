@@ -8,6 +8,7 @@ using System;
 public class FractalGenerator : MonoBehaviour
 {
     public RawImage image;
+    public GameObject photoGenerationIndicator;
     public int width;
     public int height;
     public int maxIteration;
@@ -15,7 +16,7 @@ public class FractalGenerator : MonoBehaviour
     public Tuple offset;
     public double zoom;
     public double tolerance = 0.1f;
-    public static double brightness = 1;
+    public static double brightness = 3;
 
 
     public static Polynomial equation;
@@ -25,6 +26,8 @@ public class FractalGenerator : MonoBehaviour
     //speed variables;
     double widthScaled;
     double heightScaled;
+
+    private bool PhotoRequested = false;
     public ComplexNumber[] roots =
     {
         
@@ -52,7 +55,7 @@ public class FractalGenerator : MonoBehaviour
         new ComplexNumber(0.824690f,0.502615f),
         */
     };
-    public Color[] colors = new Color[3];
+    public static Color[] colors = new Color[3];
 
     public double translateSpeed;
     public double zoomSpeed;
@@ -76,7 +79,7 @@ public class FractalGenerator : MonoBehaviour
         polynomialCoefficients = new double[10];
         polynomialCoefficients[0] = 1;
         polynomialCoefficients[3] = 1;
-        polynomialCoefficients[2]=1;
+        polynomialCoefficients[2] = 1;
         equation = new Polynomial(polynomialCoefficients);
         derivitave = equation.Derivative();
         roots = equation.GetRoots();
@@ -87,7 +90,7 @@ public class FractalGenerator : MonoBehaviour
         colorScale = colorScaleFactor;
 
         GenerateFractal(false);
-
+        PhotoRequested = false;
     }
     void Update()
     {
@@ -121,9 +124,9 @@ public class FractalGenerator : MonoBehaviour
             GenerateFractal(false);
         }
 
-
-        if (Input.GetKeyDown("space"))
+        if (PhotoRequested)
         {
+            PhotoRequested = false;
             int initWidth = width;
             int initHeight = height;
             double initZoom = zoom;
@@ -140,8 +143,15 @@ public class FractalGenerator : MonoBehaviour
             height = initHeight;
             zoom = initZoom;
             maxIteration = initIter;
-            
+            photoGenerationIndicator.SetActive(false);
         }
+        if (Input.GetKeyDown("space"))
+        {
+            photoGenerationIndicator.SetActive(true);
+
+            PhotoRequested = true;
+        }
+
         if (!Input.GetKey("left shift") && !Input.GetKey("left ctrl"))
         {
             if (Input.GetKeyDown("e") && width < 3000)
@@ -187,8 +197,9 @@ public class FractalGenerator : MonoBehaviour
     void LateUpdate()
     {
         equation = new Polynomial(polynomialCoefficients);
-       derivitave = equation.Derivative();
+        derivitave = equation.Derivative();
         roots = equation.GetRoots();
+
     }
     public static void Reset()
     {
@@ -196,16 +207,18 @@ public class FractalGenerator : MonoBehaviour
         gen.width = 64;
         gen.height = 64;
         gen.maxIteration = 100;
-        gen.colorScaleFactor = 8;
-        brightness = 1;
+        gen.colorScaleFactor = 4;
+        brightness = 3;
+        if (fractalType == FractalType.Newtonian)
+            brightness = 1;
         gen.GenerateFractal(false);
     }
     public static void Regenerate()
     {
-                equation = new Polynomial(polynomialCoefficients);
+        equation = new Polynomial(polynomialCoefficients);
         derivitave = equation.Derivative();
-                gen.roots = equation.GetRoots();
-                gen.GenerateFractal(false);
+        gen.roots = equation.GetRoots();
+        gen.GenerateFractal(false);
     }
     void GenerateFractal(bool save)
     {
@@ -282,9 +295,9 @@ public class FractalGenerator : MonoBehaviour
     {
         byte[] data = texture.EncodeToPNG();
         string ID = UnityEngine.Random.Range(0, 10000).ToString();
-        if(!Directory.Exists(Application.dataPath+"/Saved_Images"))
+        if (!Directory.Exists(Application.dataPath + "/Saved_Images"))
         {
-            Directory.CreateDirectory(Application.dataPath+"/Saved_Images");
+            Directory.CreateDirectory(Application.dataPath + "/Saved_Images");
         }
         string path = Application.dataPath + "/Saved_Images/Fractal_" + ID + ".png";
         File.WriteAllBytes(path, data);
@@ -375,7 +388,7 @@ public class FractalGenerator : MonoBehaviour
                     ComplexNumber difference = z - roots[r];
                     if (difference.MagnitudeSquared() < tolerance)
                     {
-                        Color result = colors[Math.Clamp(r*colorScale,0,colors.Length-1)] * (float)brightness / Mathf.Sqrt(iteration);
+                        Color result = colors[Math.Clamp(r * colorScale, 0, colors.Length - 1)] * (float)brightness / Mathf.Sqrt(iteration);
                         result.a = 1;
                         return result;
                         succeeded = true;
@@ -601,8 +614,8 @@ public struct Polynomial
     public ComplexNumber[] GetRoots()
     {
 
-        int indexOfLastNonZero = coefficients.Length-1;
-        while(indexOfLastNonZero>=0&&coefficients[indexOfLastNonZero]==0)
+        int indexOfLastNonZero = coefficients.Length - 1;
+        while (indexOfLastNonZero >= 0 && coefficients[indexOfLastNonZero] == 0)
         {
             indexOfLastNonZero--;
         }
@@ -613,7 +626,6 @@ public struct Polynomial
         for (int i = 0; i < result.Length; i++)
         {
             ComplexNumber root = poly.GetNewtonianRoot(guess);
-                            Debug.Log(root.real+"/"+root.imaginary);
 
             if (root.imaginary == 0)
             {
